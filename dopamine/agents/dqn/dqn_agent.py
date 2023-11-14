@@ -407,9 +407,6 @@ class DQNAgent(object):
       int, the selected action.
     """
 
-    if self.training_steps % self.output_period == 0:
-      print("reward : {} for timestep : {}".format(reward, self.training_steps))
-
     self._last_observation = self._observation
     self._record_observation(observation)
 
@@ -431,6 +428,8 @@ class DQNAgent(object):
     """
     if not self.eval_mode:
       self._store_transition(self._observation, self.action, reward, True)
+
+    print("reward : {} for timestep : {}".format(reward, self.training_steps))
 
   def _select_action(self):
     """Select an action from the set of available actions.
