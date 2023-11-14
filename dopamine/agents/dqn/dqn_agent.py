@@ -393,7 +393,7 @@ class DQNAgent(object):
     self.action = self._select_action()
     return self.action
 
-  def step(self, reward, observation, temporary_steps):
+  def step(self, reward, observation):
     """Records the most recent transition and returns the agent's next action.
 
     We store the observation of the last time step since we want to store it
