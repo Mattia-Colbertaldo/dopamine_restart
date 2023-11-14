@@ -105,7 +105,8 @@ class DQNAgent(object):
                reset_period=500,
                reset_dense1=False,
                reset_dense2=False,
-               reset_last_layer=False):
+               reset_last_layer=False,
+               output_period=1000):
     """Initializes the agent and constructs the components of its graph.
 
     Args:
@@ -186,6 +187,7 @@ class DQNAgent(object):
     self.eval_mode = eval_mode
     self.training_steps = 0
     self.optimizer = optimizer
+    self.output_period = output_period
     # Modified
     self.optimizer_state = self.optimizer.variables()
 

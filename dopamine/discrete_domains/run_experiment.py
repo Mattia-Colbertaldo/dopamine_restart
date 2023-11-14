@@ -173,7 +173,8 @@ class Runner(object):
                max_steps_per_episode=27000,
                clip_rewards=True,
                use_legacy_logger=True,
-               fine_grained_print_to_console=True):
+               fine_grained_print_to_console=True,
+               output_period=1000):
     """Initialize the Runner object in charge of running a full experiment.
 
     Args:
@@ -218,6 +219,8 @@ class Runner(object):
     self._base_dir = base_dir
     self._clip_rewards = clip_rewards
     self._create_directories()
+    self.temporary_steps = 0
+    self.output_period = output_period
 
     self._environment = create_environment_fn()
     # The agent is now in charge of setting up the session.
@@ -361,9 +364,15 @@ class Runner(object):
     # Keep interacting until we reach a terminal state.
     while True:
       observation, reward, is_terminal = self._run_one_step(action)
-
       total_reward += reward
       step_number += 1
+
+      self.temporary_steps += 1
+      if (self.temporary_steps + 1) % self.output_period == 0:
+        sys.stdout.write("Temporary steps: " + str(self.temporary_steps) + "\n")
+        sys.stdout.flush()
+        print('PATRIK')
+
 
       if self._clip_rewards:
         # Perform reward clipping.
