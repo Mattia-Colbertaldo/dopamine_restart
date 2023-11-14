@@ -367,13 +367,6 @@ class Runner(object):
       total_reward += reward
       step_number += 1
 
-      self.temporary_steps += 1
-      if (self.temporary_steps + 1) % self.output_period == 0:
-        sys.stdout.write("Temporary steps: " + str(self.temporary_steps) + "\n")
-        sys.stdout.flush()
-        print('PATRIK')
-
-
       if self._clip_rewards:
         # Perform reward clipping.
         reward = np.clip(reward, -1, 1)
