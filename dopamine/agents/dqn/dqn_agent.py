@@ -101,7 +101,11 @@ class DQNAgent(object):
                    centered=True),
                summary_writer=None,
                summary_writing_frequency=500,
-               allow_partial_reload=False):
+               allow_partial_reload=False,
+               reset_period=500,
+               reset_dense1=False,
+               reset_dense2=False,
+               reset_last_layer=False):
     """Initializes the agent and constructs the components of its graph.
 
     Args:
@@ -182,6 +186,14 @@ class DQNAgent(object):
     self.eval_mode = eval_mode
     self.training_steps = 0
     self.optimizer = optimizer
+    # Modified
+    self.optimizer_state = self.optimizer.variables()
+
+    self.reset_period = reset_period
+    self.reset_dense1 = reset_dense1
+    self.reset_dense2 = reset_dense2
+    self.reset_last_layer = reset_last_layer
+
     tf.compat.v1.disable_v2_behavior()
     if isinstance(summary_writer, str):  # If we're passing in directory name.
       self.summary_writer = tf.compat.v1.summary.FileWriter(summary_writer)
@@ -209,6 +221,8 @@ class DQNAgent(object):
       self._replay = self._build_replay_buffer(use_staging)
 
       self._build_networks()
+
+      self.online_convnet_state = self.online_convnet.get_weights()
 
       self._train_op = self._build_train_op()
       self._sync_qt_ops = self._build_sync_op()
@@ -460,7 +474,41 @@ class DQNAgent(object):
       if self.training_steps % self.target_update_period == 0:
         self._sess.run(self._sync_qt_ops)
 
+      if self.training_steps % self.reset_period == 0:
+        print("Resetting last layers...")
+        self.ResetWeights()
+
     self.training_steps += 1
+
+  def ResetWeights(self):
+    # Reset the weights of the last layer
+    # self.online_convnet.set_weights(self.online_convnet_state)
+    # self.target_convnet.set_weights(self.online_convnet_state)
+
+    print("Resetting weights...")
+    if self.reset_last_layer:
+      print("Resetting last layer!")
+      self.online_convnet.layers[-1].last_layer.kernel.initializer.run(session=self._sess)
+      self.online_convnet.layers[-1].last_layer.bias.initializer.run(session=self._sess)
+
+    if self.reset_dense1:
+      print("Resetting dense1 layer!")
+      self.online_convnet.layers[-1].dense1.kernel.initializer.run(session=self._sess)
+      self.online_convnet.layers[-1].dense1.bias.initializer.run(session=self._sess)
+
+    if self.reset_dense2:
+      print("Resetting dense2 layer!")
+      self.online_convnet.layers[-1].dense2.kernel.initializer.run(session=self._sess)
+      self.online_convnet.layers[-1].dense2.bias.initializer.run(session=self._sess)
+
+    # Legacy code
+    # self.online_convnet.last_layer.kernel.initializer.run(session=self._sess)
+    # self.online_convnet.last_layer.bias.initializer.run(session=self._sess)
+
+    # self._sess.run(tf.compat.v1.global_variables_initializer())
+    # Reset the optimizer state
+    optimizer_reset = tf.compat.v1.variables_initializer(self.optimizer_state)
+    self._sess.run(optimizer_reset)
 
   def _record_observation(self, observation):
     """Records an observation and update state.
