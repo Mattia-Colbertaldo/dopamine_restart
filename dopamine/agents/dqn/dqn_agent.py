@@ -408,7 +408,7 @@ class DQNAgent(object):
     """
 
     if self.training_steps % self.output_period == 0:
-      print("this works!")
+      print("{}, {}".format(reward, observation))
 
     self._last_observation = self._observation
     self._record_observation(observation)
