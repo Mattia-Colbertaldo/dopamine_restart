@@ -187,14 +187,17 @@ class DQNAgent(object):
     self.eval_mode = eval_mode
     self.training_steps = 0
     self.optimizer = optimizer
-    self.output_period = output_period
+
     # Modified
+    self.output_period = output_period
     self.optimizer_state = self.optimizer.variables()
+    self.last_timestep = 0
 
     self.reset_period = reset_period
     self.reset_dense1 = reset_dense1
     self.reset_dense2 = reset_dense2
     self.reset_last_layer = reset_last_layer
+
 
     tf.compat.v1.disable_v2_behavior()
     if isinstance(summary_writer, str):  # If we're passing in directory name.
