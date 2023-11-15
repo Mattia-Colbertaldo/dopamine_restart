@@ -191,6 +191,7 @@ class DQNAgent(object):
     # Modified
     self.output_period = output_period
     self.optimizer_state = self.optimizer.variables()
+    self.episode = 0
     self.last_timestep = 0
 
     self.reset_period = reset_period
