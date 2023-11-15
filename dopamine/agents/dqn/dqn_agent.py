@@ -187,9 +187,11 @@ class DQNAgent(object):
     self.eval_mode = eval_mode
     self.training_steps = 0
     self.optimizer = optimizer
-    self.output_period = output_period
     # Modified
+    self.output_period = output_period
     self.optimizer_state = self.optimizer.variables()
+    self.episode = 0
+    self.last_timestep = 0
 
     self.reset_period = reset_period
     self.reset_dense1 = reset_dense1
@@ -426,10 +428,15 @@ class DQNAgent(object):
     Args:
       reward: float, the last reward from the environment.
     """
+
+    self.episode += 1
     if not self.eval_mode:
       self._store_transition(self._observation, self.action, reward, True)
 
-    print("reward : {} for timestep : {}".format(reward, self.training_steps))
+    if self.training_steps % (self.output_period * self.episode) == 0:
+      print("reward : {} for timestep : {}".format(self.training_steps - self.last_timestep, self.training_steps))
+
+    self.last_timestep = self.training_steps
 
   def _select_action(self):
     """Select an action from the set of available actions.
